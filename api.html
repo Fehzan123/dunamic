@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name"><br><br>
+        <label for="email">Email</label>
+        <input type="text" id="email"><br><br>
+        <button id="submit">Submit</button>
+        <ul id="ul">
+            <li id="li"></li>
+        </ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+        var submit = document.getElementById('submit');
+        submit.addEventListener('click', addLi);
+
+        function addLi(e) {
+            var name = document.getElementById("name").value;
+            var email = document.getElementById('email').value;
+            var obj = {
+                name: name,
+                email: email
+            };
+
+            var ul = document.getElementById('ul');
+            var newLi = document.createElement('li');
+            newLi.appendChild(document.createTextNode(JSON.stringify(obj)));
+            ul.appendChild(newLi);
+
+            var btn = document.createElement('button');
+            btn.appendChild(document.createTextNode('Delete'));
+            newLi.appendChild(btn);
+            var updateBtn = document.createElement("button"); // Create a new button for updating
+                updateBtn.appendChild(document.createTextNode("Update"));
+                newLi.appendChild(updateBtn);
+
+            axios.post("https://crudcrud.com/api/591af559fca44b03a3457df5fc88f8ff/apointment", obj)
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+    axios.get("https://crudcrud.com/api/591af559fca44b03a3457df5fc88f8ff/apointment")
+        .then((response) => {
+            console.log(response);
+            var ul = document.createElement("ul"); // Create a new <ul> element
+            for (var i = 0; i < response.data.length; i++) {
+                var li = document.createElement("li");
+                var key = response.data[i];
+                li.appendChild(document.createTextNode(`${key.name}: ${key.email}`));
+
+                var btn = document.createElement("button"); // Create a new button
+                btn.appendChild(document.createTextNode("Delete"));
+                btn.addEventListener("click", function() {
+                    deleteItem(key._id); // Pass the item ID to the deleteItem function
+                });
+                li.appendChild(btn); // Append the button to the list item
+
+                var updateBtn = document.createElement("button"); // Create a new button for updating
+                updateBtn.appendChild(document.createTextNode("Update"));
+                updateBtn.addEventListener("click", function() {
+                    updateItem(key._id, key.name, key.email); // Pass the item details to the updateItem function
+                });
+                li.appendChild(updateBtn); // Append the update button to the list item
+
+                ul.appendChild(li); // Append each <li> to the new <ul> element
+            }
+            var oldUl = document.getElementById("ul");
+            oldUl.parentNode.replaceChild(ul, oldUl); // Replace the old <ul> element with the new one
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+function deleteItem(itemId) {
+    // Perform the delete functionality based on the item ID
+    if (confirm("Are you sure you want to delete this item?")) {
+        axios.delete(`https://crudcrud.com/api/591af559fca44b03a3457df5fc88f8ff/apointment/${itemId}`)
+            .then((response) => {
+                console.log(response);
+                // Handle any additional actions after the item is deleted
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+}
+
+function updateItem(itemId, name, email) {
+    // Perform the update functionality based on the item ID, name, and email
+    var updatedName = prompt("Enter the updated name:", name);
+    var updatedEmail = prompt("Enter the updated email:", email);
+    if (updatedName && updatedEmail) {
+        var updatedObj = {
+            name: updatedName,
+            email: updatedEmail
+        };
+
+        axios.put(`https://crudcrud.com/api/591af559fca44b03a3457df5fc88f8ff/apointment/${itemId}`, updatedObj)
+            .then((response) => {
+                console.log(response);
+                // Handle any additional actions after the item is updated
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+}
+
+    </script>
+</body>
+</html>
